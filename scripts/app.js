@@ -1,4 +1,26 @@
 "use strict";
+
+const itemsContainerTemplate = `
+  <div class="items-container">
+    <div class="top-container">
+      <h2>Nouvelle liste</h2>
+      <button class="delete-container-btn">X</button>
+    </div>
+    <ul></ul>
+    <button class="add-item-btn">Ajouter une tâche</button>
+    <form autocomplete="off">
+      <div class="top-form-container">
+        <label for="item">Ajouter une nouvelle tâche</label>
+        <button type="button" class="close-form-btn">X</button>
+      </div>
+      <input type="text" id="item" />
+      <span class="validation-msg"></span>
+      <button type="submit">Soumettre</button>
+    </form>
+  </div>
+`;
+
+
 const itemsContainer = document.querySelectorAll('.items-container');
 let actualContainer, actualBtn, actualUL, actualForm, actualTextInput, actualValidation;
 function addContainerListeners(currentContainer) {
@@ -154,24 +176,32 @@ const validationNewContainer = document.querySelector('.add-new-container .valid
 const addContainerCloseBtn = document.querySelector('.close-add-list');
 const addNewContainer = document.querySelector('.add-new-container');
 const containersList = document.querySelector('.main-content');
+
 addContainerBtn.addEventListener('click', () => {
     toggleForm(addContainerBtn, addContainerForm, true);
 });
+
 addContainerCloseBtn.addEventListener('click', () => {
     toggleForm(addContainerBtn, addContainerForm, false);
 });
+
 addContainerForm.addEventListener('submit', createNewContainer);
+
 function createNewContainer(e) {
     e.preventDefault();
+
     if (addContainerFormInput.value.length === 0) {
         validationNewContainer.textContent = "Must be at least 1 character long";
         return;
-    }
-    else {
+    } else {
         validationNewContainer.textContent = "";
     }
-    const itemsContainer = document.querySelector(".items-container");
-    const newContainer = itemsContainer.cloneNode();
+
+    // Créer un nouveau conteneur
+    const newContainer = document.createElement('div');
+    newContainer.classList.add('items-container');
+    newContainer.setAttribute('draggable', 'true');
+
     const newContainerContent = `
     <div class="top-container">
       <h2>${addContainerFormInput.value}</h2>
@@ -188,8 +218,13 @@ function createNewContainer(e) {
       <span class="validation-msg"></span>
       <button type="submit">Soumettre</button>
     </form>`;
+
     newContainer.innerHTML = newContainerContent;
+
     containersList.insertBefore(newContainer, addNewContainer);
     addContainerFormInput.value = "";
+
+    // Ajouter les écouteurs pour le nouveau conteneur
     addContainerListeners(newContainer);
-}
+    addDDListeners(newContainer);
+};
