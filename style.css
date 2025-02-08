@@ -24,11 +24,7 @@ body {
 }
 .scrum-background-image {
     position: absolute;
-    z-index: -1;
-    top: 0;
-    bottom: 0;
-    right: 0;
-    left: 0;
+    z-index: -10;
     filter: grayscale(40%);
 }
 nav {
