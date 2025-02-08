@@ -27,7 +27,6 @@ body {
     height: 100%;
     background-color: green;
     position: absolute;
-    z-index: -3;
     /* filter: grayscale(40%); */
 }
 nav {
