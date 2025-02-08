@@ -20,6 +20,7 @@ body {
     background: url(images/rugby-scrum.webp) no-repeat center center fixed;
     background-size: cover;
     position: relative;
+    min-height: 100vh;
     
     /* background: no-repeat center center fixed; */
     /* animation: fadein 15s ease-in-out infinite both; */
@@ -27,11 +28,11 @@ body {
 body::after {
     z-index: 0;
     content: "";
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
-    right: 0;
-    bottom: 0;
+    width: 100vw;
+    height: 100vh;
     background: rgba(0, 0, 0, 0.5);
     filter: grayscale(100%);
     pointer-events: none;
