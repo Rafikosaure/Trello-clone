@@ -17,6 +17,7 @@ body {
     font-family: Arial, Helvetica, sans-serif;
     /* background: #424141; */
     background: url(images/rugby-scrum.webp) no-repeat center center fixed;
+    position: relative;
     
     /* background: no-repeat center center fixed; */
     /* animation: fadein 15s ease-in-out infinite both; */
