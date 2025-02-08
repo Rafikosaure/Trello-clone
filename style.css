@@ -37,6 +37,7 @@ body::after {
     pointer-events: none;
 }
 nav {
+    z-index: 1;
     background: #f2f2f2;
     padding: 10px;
     text-align: center;
@@ -57,6 +58,7 @@ nav a:hover {
 }
 
 .main-content {
+    z-index: 1;
     display: flex;
     padding: 60px 20px 0;
 }
