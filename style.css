@@ -14,22 +14,12 @@ html, body {
 } */
 
 body {
-    position: relative;
     font-family: Arial, Helvetica, sans-serif;
     /* background: #424141; */
-    /* background: url(images/rugby-scrum.jpg) no-repeat center center fixed; */
+    background: url(images/rugby-scrum.jpg) no-repeat center center fixed; */
     
     /* background: no-repeat center center fixed; */
     /* animation: fadein 15s ease-in-out infinite both; */
-}
-.scrum-background-image {
-    top: 0;
-    left: 100%;
-    right: 0;
-    bottom: 100%;
-    background-color: green;
-    position: absolute;
-    /* filter: grayscale(40%); */
 }
 nav {
     background: #f2f2f2;
