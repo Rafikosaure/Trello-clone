@@ -27,8 +27,8 @@ body {
     height: 100%;
     background-color: green;
     position: absolute;
-    z-index: -10;
-    filter: grayscale(40%);
+    z-index: -3;
+    /* filter: grayscale(40%); */
 }
 nav {
     background: #f2f2f2;
