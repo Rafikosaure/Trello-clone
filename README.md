@@ -10,7 +10,7 @@ Le design UI/UX a été amélioré au fil du développement pour rendre l'applic
 
 ## Fonctionnalités
 
-- **Création, modification et suppression de listes**.
+- **Création, modification et suppression de listes** qui comportent chacune un **titre**.
 - **Création, modification et suppression de cartes** qui comportent chacune un **titre** et une **description**.
 - **Drag and drop** permettant de déplacer les **listes** et les **cartes** entre les différentes colonnes.
 - Interface réactive et **intuitive**, adaptée pour un usage simple et efficace.
