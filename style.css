@@ -58,7 +58,7 @@ nav a:hover {
 }
 
 .main-content {
-    z-index: 1;
+    z-index: 1 !important;
     display: flex;
     padding: 60px 20px 0;
 }
