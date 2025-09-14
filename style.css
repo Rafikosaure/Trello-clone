@@ -3,28 +3,20 @@
     margin: 0;
     padding: 0;
 }
+
 html, body {
     height: 100%;
 }
-/* @keyframes fadein {
-    0%{background-image: url(images/Chabanne-Architectes-Patinoire-Douai-VUE-PATINOIRE.jpg)};
-    33.33%{background-image: url(images/Chabanne-Saint-Etienne-VUE-AER.jpg)};
-    66.67%{background-image: url(images/Chabanne-Saint-Etienne-VUE-OUEST.jpg);}
-    100%{background-image: url(images/Chabanne-Architectes-Patinoire-Douai-VUE-PATINOIRE.jpg);}
-} */
 
 body {
     z-index: -1;
     font-family: Arial, Helvetica, sans-serif;
-    /* background: #424141; */
     background: url(images/rugby-scrum.webp) no-repeat center center fixed;
     background-size: cover;
     position: relative;
     min-height: 100vh;
-    
-    /* background: no-repeat center center fixed; */
-    /* animation: fadein 15s ease-in-out infinite both; */
 }
+
 body::after {
     z-index: 0;
     content: "";
@@ -37,6 +29,7 @@ body::after {
     filter: grayscale(100%);
     pointer-events: none;
 }
+
 nav {
     z-index: 3;
     background: #f2f2f2;
@@ -45,6 +38,7 @@ nav {
     position: fixed;
     width: 100%;
 }
+
 nav a {
     text-decoration: none;
     font-size: 18px;
@@ -52,6 +46,7 @@ nav a {
     padding: 8px;
     color: #333;
 }
+
 nav a:hover {
     background-color: #e23c5d;
     border-radius: 5px;
@@ -63,6 +58,7 @@ nav a:hover {
     display: flex;
     padding: 60px 20px 0;
 }
+
 .items-container {
     z-index: 2;
     flex-shrink: 0;
@@ -74,14 +70,25 @@ nav a:hover {
     cursor: move;
     align-self: flex-start;
 }
+
+.items-container ul { 
+    min-height: 24px; 
+}
+
+.items-container ul:empty { 
+    padding: 8px 0; 
+}
+
 .top-container {
     display: flex;
     justify-content: space-between;
 }
+
 .top-container h2 {
     width: 90%;
     overflow-wrap: break-word;
 }
+
 .top-container button, li button {
     border-radius: 5px;
     width: 20px;
@@ -92,6 +99,7 @@ nav a:hover {
     font-size: 12px;
     cursor: pointer;
 }
+
 .item {
     padding: 15px 5px;
     margin: 10px 0;
@@ -102,11 +110,21 @@ nav a:hover {
     justify-content: space-between;
     width: 100%;
 }
+
 .item p {
     width: 90%;
     height: fit-content;
     overflow-wrap: break-word;
 }
+
+.dragging { 
+    opacity: .6 
+}
+
+.dragging-list { 
+    opacity: .85; 
+}
+
 .add-item-btn, .add-container-btn {
     display: inline-block;
     width: 100%;
@@ -115,33 +133,39 @@ nav a:hover {
     font-size: 16px;
     cursor: pointer;
 }
+
 form {
     display: none;
     padding: 5px;
     position: relative;
 }
+
 .top-form-container {
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
+
 .main-content form label {
     display: block;
     font-size: 18px;
     margin: 10px 0;
 }
+
 .main-content form input {
     display: block;
     width: 100%;
     padding: 5px;
     font-size: 16px;
 }
+
 .validation-msg {
     display: block;
     color: crimson;
     font-size: 16px;
     padding: 5px 0;
 }
+
 .close-form-btn {
     display: inline-flex;
     align-items: center;
@@ -149,6 +173,7 @@ form {
     width: 25px;
     height: 25px;
 }
+
 button[type="submit"] {
     display: inline-block;
     width: 100%;
@@ -168,6 +193,7 @@ button[type="submit"] {
     margin: 10px;
     align-self: flex-start;
 }
+
 .add-container-btn {
     margin-top: 5px;
     width: 100%;

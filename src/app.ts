@@ -21,7 +21,6 @@ const itemsContainerTemplate: string = `
 
 // Sélection des conteneurs existants
 const itemsContainer: NodeListOf<HTMLElement> = document.querySelectorAll('.items-container');
-
 let actualContainer: HTMLElement | null = null;
 let actualBtn: HTMLButtonElement | null = null;
 let actualUL: HTMLUListElement | null = null;
@@ -31,6 +30,7 @@ let actualValidation: HTMLElement | null = null;
 
 // Ajouter des écouteurs à un conteneur
 function addContainerListeners(currentContainer: HTMLElement): void {
+    const currentUL = currentContainer.querySelector('ul') as HTMLUListElement;
     const currentContainerDeletionBtn = currentContainer.querySelector('.delete-container-btn') as HTMLButtonElement;
     const currentAddItemBtn = currentContainer.querySelector('.add-item-btn') as HTMLButtonElement;
     const currentCloseFormBtn = currentContainer.querySelector('.close-form-btn') as HTMLButtonElement;
@@ -40,8 +40,23 @@ function addContainerListeners(currentContainer: HTMLElement): void {
     addItemBtnListeners(currentAddItemBtn);
     closingFormBtnListeners(currentCloseFormBtn);
     addFormSubmitListeners(currentForm);
-    addDDListeners(currentContainer);
+    addDeleteDelegation(currentUL);
+    addContainerDDListeners(currentContainer);
+
+    const input = currentContainer.querySelector('input') as HTMLInputElement;
+    const label = currentContainer.querySelector('label[for="item"]') as HTMLLabelElement;
+    const uniqueId = `item-${crypto?.randomUUID?.() ?? Date.now()}`;
+    input.id = uniqueId;
+    if (label) label.htmlFor = uniqueId;
+
+    const header = currentContainer.querySelector('.top-container') as HTMLElement;
+    header.setAttribute('draggable', 'true');
+    header.addEventListener('dragstart', handleListDragStart);
+    header.addEventListener('dragend', handleListDragEnd);
 }
+
+document.querySelectorAll('.items-container[draggable="true"]')
+  .forEach(el => (el as HTMLElement).removeAttribute('draggable'));
 
 itemsContainer.forEach((container) => {
     addContainerListeners(container);
@@ -57,40 +72,35 @@ function addItemBtnListeners(btn: HTMLButtonElement): void {
 }
 
 function closingFormBtnListeners(btn: HTMLButtonElement): void {
-    btn.addEventListener('click', () => toggleForm(actualBtn!, actualForm!, false));
+    btn.addEventListener('click', () => {
+        if (!actualBtn || !actualForm) return;
+        toggleForm(actualBtn, actualForm, false);
+    });
 }
 
 function addFormSubmitListeners(form: HTMLFormElement): void {
     form.addEventListener('submit', createNewItem);
 }
 
-// Drag and Drop Listeners
-function addDDListeners(element: HTMLElement): void {
-    element.addEventListener('dragstart', handleDragStart);
-    element.addEventListener('dragover', handleDragOver);
-    element.addEventListener('drop', handleDrop);
-    element.addEventListener('dragend', handleDragEnd);
-}
-
 // Suppression de conteneurs
 function handleContainerDeletion(e: Event): void {
-    const btn = e.target as HTMLButtonElement;
-    const btnsArray = [...document.querySelectorAll('.delete-container-btn')];
-    const containers = [...document.querySelectorAll('.items-container')];
-    containers[btnsArray.indexOf(btn)].remove();
+    const btn = e.currentTarget as HTMLButtonElement;
+    btn.closest('.items-container')?.remove();
 }
 
 // Ajouter une tâche
 function handleAddItem(e: Event): void {
     const btn = e.target as HTMLButtonElement;
-    if (actualContainer) toggleForm(actualBtn!, actualForm!, false);
+    if (actualBtn && actualForm) toggleForm(actualBtn, actualForm, false);
     setContainerItems(btn);
-    toggleForm(actualBtn!, actualForm!, true);
+    if (actualBtn && actualForm) toggleForm(actualBtn, actualForm, true);
 }
 
 // Afficher/Masquer le formulaire
 function toggleForm(btn: HTMLButtonElement, form: HTMLFormElement, action: boolean): void {
     if (!action) {
+        (form.querySelector('input') as HTMLInputElement).value = "";
+        (form.querySelector('.validation-msg') as HTMLElement).textContent = "";
         form.style.display = "none";
         btn.style.display = "block";
     } else {
@@ -123,70 +133,207 @@ function createNewItem(e: Event): void {
     const itemContent = actualTextInput.value;
     const li: string = `<li class="item" draggable="true">
       <p>${itemContent}</p>
-      <button>X</button>
+      <button type="button">X</button>
     </li>`;
     actualUL.insertAdjacentHTML('beforeend', li);
     const item = actualUL.lastElementChild as HTMLElement;
-    const liBtn = item.querySelector('button') as HTMLButtonElement;
 
-    handleItemDeletion(liBtn);
-    addDDListeners(item);
+    // handleItemDeletion(liBtn);
+    addItemDDListeners(item);
     actualTextInput.value = "";
 }
 
 // Suppression d'une tâche
-function handleItemDeletion(btn: HTMLButtonElement): void {
-    btn.addEventListener('click', () => {
-        const elToRemove = btn.parentElement as HTMLElement;
-        elToRemove.remove();
+function addDeleteDelegation(ul: HTMLUListElement): void {
+    ul.addEventListener('click', (e) => {
+        const btn = (e.target as HTMLElement).closest('li.item > button');
+        if (!btn) return;
+        const li = (btn as HTMLElement).closest('li.item') as HTMLElement | null;
+        if (li) li.remove();
     });
 }
 
 // Drag And Drop
-let dragSrcEl: HTMLElement;
+let dragSrcEl: HTMLElement | null = null;
+let dragListEl: HTMLElement | null = null;
+
+function handleListDragStart(e: DragEvent): void {
+    const header = e.target as HTMLElement;
+    const container = header.closest('.items-container') as HTMLElement | null;
+    if (!container) return;
+    dragListEl = container;
+    container.classList.add('dragging-list');
+    e.dataTransfer?.setData('text/plain', ''); // requis sur certains navigateurs
+    if (e.dataTransfer) e.dataTransfer.effectAllowed = 'move';
+}
+
+function handleListDragEnd(): void {
+    dragListEl?.classList.remove('dragging-list');
+    dragListEl = null;
+}
+
+function addItemDDListeners(item: HTMLElement): void {
+    item.addEventListener('dragstart', handleDragStart);
+    item.addEventListener('dragend', handleDragEnd);
+}
+
+document.querySelectorAll('li.item').forEach((li) => {
+    (li as HTMLElement).setAttribute('draggable', 'true'); // si pré-rendus
+    addItemDDListeners(li as HTMLElement);
+});
 
 function handleDragStart(e: DragEvent): void {
-    if (actualContainer) toggleForm(actualBtn!, actualForm!, false);
-    dragSrcEl = e.target as HTMLElement;
-    e.dataTransfer?.setData('text/html', dragSrcEl.innerHTML);
+    if (actualBtn && actualForm) toggleForm(actualBtn, actualForm, false);
+    const target = (e.target as HTMLElement).closest('li.item');
+    if (!target) return;
+    dragSrcEl = target as HTMLElement;
+    target.classList.add('dragging');
+    e.dataTransfer?.setData('text/plain', '');
 }
 
-function handleDragOver(e: DragEvent): void {
-    e.preventDefault();
+function handleDragEnd(): void {
+    dragSrcEl?.classList.remove('dragging');
+    dragSrcEl = null;
 }
 
-function handleDrop(e: DragEvent): void {
-    e.stopPropagation();
-    const receptionEl = e.target as HTMLElement;
-    if (dragSrcEl.nodeName === "LI" && receptionEl.classList.contains("items-container")) {
-        (receptionEl.querySelector('ul') as HTMLUListElement).appendChild(dragSrcEl);
+function addContainerDDListeners(container: HTMLElement): void {
+    const ul = container.querySelector('ul') as HTMLUListElement;
+
+    // 1) Autoriser le drop sur le CONTAINER
+    container.addEventListener('dragover', (e) => {
+        e.preventDefault();
+    });
+
+    // 2) Réordonnancement précis quand on survole le UL
+    ul.addEventListener('dragover', (e: DragEvent) => {
+        e.preventDefault();
+        const dragging = document.querySelector('li.item.dragging') as HTMLElement | null;
+        if (!dragging) return;
+
+        const after = getDragAfterElement(ul, e.clientY);
+        if (after == null) ul.appendChild(dragging);
+        else ul.insertBefore(dragging, after);
+    });
+
+    // 3) Drop final : déplace dans la bonne liste
+    container.addEventListener('drop', (e: DragEvent) => {
+        e.preventDefault();
+        const dragging = document.querySelector('li.item.dragging') as HTMLElement | null;
+        if (!dragging) return;
+
+        const targetUl = (e.target as HTMLElement)
+        .closest('.items-container')
+        ?.querySelector('ul') as HTMLUListElement | null;
+        if (!targetUl) return;
+
+        // Si on change de liste, calcule la position, 
+        // sinon ne rien faire (déjà posé par le dragover du UL)
+        if (dragging.parentElement !== targetUl) {
+        const after = getDragAfterElement(targetUl, e.clientY);
+        if (after == null) targetUl.appendChild(dragging);
+        else targetUl.insertBefore(dragging, after);
+        }
+    });
+}
+
+function getDragAfterElement(container: HTMLUListElement, y: number): HTMLElement | null {
+    const els = [...container.querySelectorAll<HTMLElement>('li.item:not(.dragging)')];
+    let closest: { offset: number; el: HTMLElement | null } = { offset: -Infinity, el: null };
+
+    for (const el of els) {
+        const box = el.getBoundingClientRect();
+        const offset = y - (box.top + box.height / 2);
+        // On veut le plus proche au-dessus du pointeur (offset < 0 mais le plus grand)
+        if (offset < 0 && offset > closest.offset) {
+        closest = { offset, el };
+        }
     }
-}
-
-function handleDragEnd(e: DragEvent): void {
-    e.stopPropagation();
+    return closest.el;
 }
 
 // Ajout d'un nouveau conteneur
+const addNewContainer = document.querySelector('.add-new-container') as HTMLElement;
 const addContainerBtn = document.querySelector('.add-container-btn') as HTMLButtonElement;
 const addContainerForm = document.querySelector('.add-new-container form') as HTMLFormElement;
 const addContainerFormInput = document.querySelector('.add-new-container input') as HTMLInputElement;
 const validationNewContainer = document.querySelector('.add-new-container .validation-msg') as HTMLElement;
 const addContainerCloseBtn = document.querySelector('.close-add-list') as HTMLButtonElement;
-const addNewContainer = document.querySelector('.add-new-container') as HTMLElement;
 const containersList = document.querySelector('.main-content') as HTMLElement;
 
 addContainerBtn.addEventListener('click', () => toggleForm(addContainerBtn, addContainerForm, true));
 addContainerCloseBtn.addEventListener('click', () => toggleForm(addContainerBtn, addContainerForm, false));
 addContainerForm.addEventListener('submit', createNewContainer);
 
+addBoardDDListeners(containersList);
+
+function addBoardDDListeners(board: HTMLElement): void {
+    board.addEventListener('dragover', (e: DragEvent) => {
+        if (!dragListEl) return;        // on n'agit que si on déplace une liste
+        e.preventDefault();
+
+        const after = getListAfterElement(board, e.clientX);
+        // placer avant l'élément "after" s'il existe, 
+        // sinon juste avant le bloc 'add-new-container'
+        const ref = after ?? addNewContainer;
+        if (ref) board.insertBefore(dragListEl, ref);
+        else board.appendChild(dragListEl);
+    });
+
+    board.addEventListener('drop', (e: DragEvent) => {
+        if (!dragListEl) return;
+        e.preventDefault();
+        // rien à faire : le placement final est déjà fait au dragover
+    });
+}
+
+function getListAfterElement(board: HTMLElement, x: number): HTMLElement | null {
+    // toutes les listes sauf celle en cours de drag
+    const lists = [...board.querySelectorAll<HTMLElement>('.items-container:not(.dragging-list)')];
+    let closest: { offset: number; el: HTMLElement | null } = { offset: -Infinity, el: null };
+
+    for (const el of lists) {
+        const box = el.getBoundingClientRect();
+        const offset = x - (box.left + box.width / 2);
+        if (offset < 0 && offset > closest.offset) {
+        closest = { offset, el };
+        }
+    }
+    return closest.el;
+}
+
 function createNewContainer(e: Event): void {
     e.preventDefault();
-    if (addContainerFormInput.value.length === 0) {
+    const name = addContainerFormInput.value.trim();
+    if (name.length === 0) {
         validationNewContainer.textContent = "Must be at least 1 character long";
         return;
     }
     validationNewContainer.textContent = "";
+
+    if (addNewContainer) {
+        addNewContainer.insertAdjacentHTML('beforebegin', itemsContainerTemplate);
+        const newContainer = addNewContainer.previousElementSibling as HTMLElement;
+
+        // Définir le titre de la nouvelle liste
+        const h2 = newContainer.querySelector('h2') as HTMLHeadingElement;
+        if (h2) h2.textContent = name;
+
+        // Brancher les listeners
+        addContainerListeners(newContainer);
+    } else {
+        containersList.insertAdjacentHTML('beforeend', itemsContainerTemplate);
+        const newContainer = containersList.lastElementChild as HTMLElement;
+
+        // Définir le titre ici aussi
+        const h2 = newContainer.querySelector('h2') as HTMLHeadingElement;
+        if (h2) h2.textContent = name;
+
+        addContainerListeners(newContainer);
+    }
+
+    // Reset + fermer le form
+    addContainerFormInput.value = "";
+    toggleForm(addContainerBtn, addContainerForm, false);
 }
 
 
