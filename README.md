@@ -21,3 +21,7 @@ Le design UI/UX a été amélioré au fil du développement pour rendre l'applic
 - **TypeScript** – Le langage de programmation principal, utilisé pour son typage strict et la gestion des erreurs.
 - **HTML/CSS** – Le design et la structure de l'application sont réalisés en HTML et CSS, sans préprocesseur ou bibliothèques supplémentaires.
 - **Vanilla JavaScript** – L'application utilise du JavaScript pur pour la logique, notamment pour la gestion du **drag-and-drop** et des interactions entre les composants.
+
+## Application
+
+L’application est accessible ici : [trello-clone](https://rafikosaure.github.io/Trello-clone)
